@@ -1,2 +1,2 @@
 # THOR
-Terry Hubble Observations of Roman fields
+Terry Hubble Observations of Roman (fields)
