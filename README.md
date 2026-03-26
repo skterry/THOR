@@ -6,4 +6,4 @@ of program GO-17776 (Terry et al.), a Precursor Survey of the Roman Galactic Bul
 
 ### HAMR
 Hubble Advanced Mining Routine (HAMR; pronounced "Hammer") is a subroutine which performs a cone search on the HST catalog and returns a list 
-of stars with measured photometry, astrometry, color-magnitude diagrams, and more.
+of stars with measured photometry, astrometry, color-magnitude diagrams, image cutouts, and more.
