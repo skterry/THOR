@@ -1,0 +1,74 @@
+# =============================================================
+# HST Bulge Survey — Cone Search Parameter File
+# =============================================================
+# Place this file (named exactly "params.in") in the same
+# directory as hamr.py, then run:
+#
+#     python hamr.py
+#
+# The script will detect this file automatically and run in
+# parameter-file mode instead of asking for input interactively.
+#
+# Lines beginning with # are comments and are ignored.
+# All keys are case-insensitive.
+# =============================================================
+
+# --- Catalog -------------------------------------------------
+# Path to the .fits or .zip catalog file.
+# Can be a relative path (from wherever you run the script)
+# or an absolute path.
+
+catalog_path = ../data/terry_early_release_cat.fits.zip
+
+# --- Search parameters ---------------------------------------
+# RA and DEC of the search centre.
+# Accepted formats:
+#   Decimal degrees  :  266.405       /  -29.007
+#   HMS / DMS        :  17h43m37.2s   /  -29d00m25s
+#   Colon-separated  :  17:43:37.2    /  -29:00:25
+
+ra            = 17:53:53.31
+dec           = -29:00:20.9
+
+# Search radius in arcseconds (must be > 0).
+
+radius_arcsec = 120
+
+# --- Output options ------------------------------------------
+# Save the result table to a file?  yes / no
+
+save_results  = yes
+
+# File format for the saved table:  fits  /  csv  /  ecsv
+
+save_format   = fits
+
+# Generate and save a colour-magnitude diagram (CMD)?  yes / no
+
+plot_cmd      = yes
+
+#Generate and save a luminosity function (LF)? yes / no
+#Passband for LF? F814W / F606W
+
+plot_lf  = yes
+lf_band  = F814W
+
+#If plotting luminosity function, want to normalize the LF? yes/no
+
+lf_normalise = no
+
+#Download an HST image cutout image from MAST centered on the target coordinates? yes / no
+# If downloading image from MAST, what pixel size for the cutout (pix)?
+
+hapcut = yes
+hapcut_size = 400
+
+#HST program ID to query for the cutout image
+
+hapcut_pid = 17776
+
+#Output directory name?
+
+output_dir = output
+
+
