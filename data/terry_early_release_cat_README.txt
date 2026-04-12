@@ -19,7 +19,7 @@ Terry et al. 2026 (submitted).
 Files:
 
 terry_hst_bulge_survey_early_fields_cat.fits - FITS table of all 
-detected sources in the eight early-release fields. A total of 767,024 
+detected sources in the eight early-release fields. A total of 767,415
 sources are in the table.
 
 *******************************************************
