@@ -588,9 +588,9 @@ class ParamFileReader:
     lf_band        : F814W / F606W  — band for the LF plot       (default: F814W)
     lf_normalise   : yes / no   — normalise LF by sky area       (default: no)
                      yes = stars mag⁻¹ arcmin⁻² ;  no = raw star counts
-    hapcut         : yes / no   — download HST cutout from MAST   (default: no)
-    hapcut_pid     : HST program ID to query                      (default: 17776)
-    hapcut_size    : Cutout size in pixels (square)               (default: 200)
+    image_cut         : yes / no   — download HST cutout from MAST   (default: no)
+    imagecut_pid     : HST program ID to query                      (default: 17776)
+    imagecut_size    : Cutout size in pixels (square)               (default: 200)
     output_dir     : Directory for all output files               (default: output)
 
     Example params.in
@@ -619,9 +619,9 @@ class ParamFileReader:
         "plot_lf":       "no",
         "lf_band":       "F814W",
         "lf_normalise":  "no",
-        "hapcut":        "no",
-        "hapcut_pid":    "17776",
-        "hapcut_size":   "200",
+        "image_cut":        "no",
+        "imagecut_pid":    "17776",
+        "imagecut_size":   "200",
         "output_dir":    "output",
     }
 
@@ -713,18 +713,18 @@ class ParamFileReader:
         return self._params["lf_normalise"].lower() in ("yes", "true", "1")
 
     @property
-    def hapcut(self) -> bool:
-        return self._params["hapcut"].lower() in ("yes", "true", "1")
+    def image_cut(self) -> bool:
+        return self._params["image_cut"].lower() in ("yes", "true", "1")
 
     @property
-    def hapcut_pid(self) -> int:
-        return int(self._params["hapcut_pid"])
+    def imagecut_pid(self) -> int:
+        return int(self._params["imagecut_pid"])
 
     @property
-    def hapcut_size(self) -> int:
-        v = int(self._params["hapcut_size"])
+    def imagecut_size(self) -> int:
+        v = int(self._params["imagecut_size"])
         if v <= 0:
-            raise ValueError(f"hapcut_size must be > 0. Got: {v}")
+            raise ValueError(f"imagecut_size must be > 0. Got: {v}")
         return v
 
     @property
@@ -768,7 +768,7 @@ def get_float_input(prompt: str, min_val: float = None, max_val: float = None) -
 # =============================================================================
 
 def run_query(catalog, ra, dec, radius_arcsec, save, fmt, do_plot, do_lf, lf_band,
-              lf_normalise=False, do_hapcut=False, hapcut_pid=17776, hapcut_size=200,
+              lf_normalise=False, do_image_cut=False, imagecut_pid=17776, imagecut_size=200,
               output_dir="output"):
     """
     Execute a single cone search and handle output.
@@ -803,8 +803,8 @@ def run_query(catalog, ra, dec, radius_arcsec, save, fmt, do_plot, do_lf, lf_ban
         catalog.plot_lf(results, ra, dec, radius_arcsec, band=lf_band,
                         normalise=lf_normalise, output_dir=output_dir)
 
-    if do_hapcut:
-        get_mast_cutout(ra, dec, program_id=hapcut_pid, size=hapcut_size,
+    if do_image_cut:
+        get_mast_cutout(ra, dec, program_id=imagecut_pid, size=imagecut_size,
                         output_dir=output_dir)
 
 
@@ -863,8 +863,8 @@ def main():
         run_query(catalog, ra, dec, radius_arcsec,
                   save=p.save_results, fmt=p.save_format, do_plot=p.plot_cmd,
                   do_lf=p.plot_lf, lf_band=p.lf_band, lf_normalise=p.lf_normalise,
-                  do_hapcut=p.hapcut, hapcut_pid=p.hapcut_pid,
-                  hapcut_size=p.hapcut_size, output_dir=p.output_dir)
+                  do_image_cut=p.image_cut, imagecut_pid=p.imagecut_pid,
+                  imagecut_size=p.imagecut_size, output_dir=p.output_dir)
 
     # ══════════════════════════════════════════════════════════════════════
     # INTERACTIVE MODE
@@ -930,32 +930,32 @@ def main():
                 lf_band = band_input if band_input in ("F814W", "F606W") else "F814W"
                 lf_normalise = input("  Normalise LF by sky area? (y/n): ").strip().lower() == "y"
 
-            do_hapcut  = input("  Download HST image cutout from MAST? (y/n): ").strip().lower() == "y"
-            hapcut_pid  = 17776
-            hapcut_size = 200
-            if do_hapcut:
+            do_image_cut  = input("  Download HST image cutout from MAST? (y/n): ").strip().lower() == "y"
+            imagecut_pid  = 17776
+            imagecut_size = 200
+            if do_image_cut:
                 pid_input = input("  Program ID [default: 17776]: ").strip()
                 if pid_input:
                     try:
-                        hapcut_pid = int(pid_input)
+                        imagecut_pid = int(pid_input)
                     except ValueError:
                         print("  Invalid program ID, using default 17776.")
-                        hapcut_pid = 17776
+                        imagecut_pid = 17776
                 size_input = input("  Cutout size in pixels [default: 200]: ").strip()
                 if size_input:
                     try:
-                        hapcut_size = int(size_input)
-                        if hapcut_size <= 0:
+                        imagecut_size = int(size_input)
+                        if imagecut_size <= 0:
                             raise ValueError
                     except ValueError:
                         print("  Invalid cutout size, using default 200.")
-                        hapcut_size = 200
+                        imagecut_size = 200
 
             run_query(catalog, ra, dec, radius_arcsec,
                       save=save, fmt=fmt, do_plot=do_plot,
                       do_lf=do_lf, lf_band=lf_band, lf_normalise=lf_normalise,
-                      do_hapcut=do_hapcut, hapcut_pid=hapcut_pid,
-                      hapcut_size=hapcut_size, output_dir=output_dir)
+                      do_image_cut=do_image_cut, imagecut_pid=imagecut_pid,
+                      imagecut_size=imagecut_size, output_dir=output_dir)
 
             again = input("\nRun another search? (y/n): ").strip().lower()
             if again != "y":

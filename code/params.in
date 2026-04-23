@@ -18,7 +18,7 @@
 # Can be a relative path (from wherever you run the script)
 # or an absolute path.
 
-catalog_path = ../data/terry_early_release_cat.fits.zip
+catalog_path = /Users/skterry/work/Roman_HST_Precursor_Survey/Data/DR1_and_Figures/thor.fits.gz
 
 # --- Search parameters ---------------------------------------
 # RA and DEC of the search centre.
@@ -27,12 +27,12 @@ catalog_path = ../data/terry_early_release_cat.fits.zip
 #   HMS / DMS        :  17h43m37.2s   /  -29d00m25s
 #   Colon-separated  :  17:43:37.2    /  -29:00:25
 
-ra            = 17:53:53.31
-dec           = -29:00:20.9
+ra            = 17:51:48.8
+dec           = -30:02:33.43
 
 # Search radius in arcseconds (must be > 0).
 
-radius_arcsec = 120
+radius_arcsec = 60
 
 # --- Output options ------------------------------------------
 # Save the result table to a file?  yes / no
@@ -57,15 +57,15 @@ lf_band  = F814W
 
 lf_normalise = no
 
-#Download an HST image cutout image from MAST centered on the target coordinates? yes / no
+#Download an HST cutout image from MAST centered on the target coordinates? yes / no
 # If downloading image from MAST, what pixel size for the cutout (pix)?
 
-hapcut = yes
-hapcut_size = 400
+image_cut = yes
+imagecut_size = 200
 
-#HST program ID to query for the cutout image
+#HST program ID to query for the cutout image?
 
-hapcut_pid = 17776
+imagecut_pid = 17776
 
 #Output directory name?
 

@@ -209,7 +209,7 @@ def get_mast_cutout(ra: float, dec: float, program_id: int = 17776,
                 print(f"  Cutout saved → {out_name}")
 
             # Delete full-frame download now the cutout is safely on disk.
-            os.remove(local_path)
+            os.remove(local_path) #delete or don't delete the full-frame DRC images.
 
         except Exception as e:
             # Best-effort cleanup on failure
