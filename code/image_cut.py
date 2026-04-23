@@ -1,7 +1,7 @@
 """
 image_cut.py — MAST Image Search and Cutout Module
-Part of the Hubble Advanced Mining Routine (HAMR) package.
-Author: Sean K. Terry
+Part of the Hubble Advanced Mining Routine for Roman (HAMRR) package.
+Authors: Sean K. Terry, Claude (Anthropic)
 
 Provides get_mast_cutout(), which:
   1. Queries the MAST archive for HST observations from a given program that

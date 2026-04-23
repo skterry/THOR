@@ -1,24 +1,22 @@
 # =============================================================
-# HST Bulge Survey — Cone Search Parameter File
+# HAMRR — Cone Search Parameter File
 # =============================================================
 # Place this file (named exactly "params.in") in the same
-# directory as hamr.py, then run:
+# directory as hamrr.py, then run:
 #
-#     python hamr.py
+#     python hamrr.py
 #
 # The script will detect this file automatically and run in
 # parameter-file mode instead of asking for input interactively.
 #
-# Lines beginning with # are comments and are ignored.
 # All keys are case-insensitive.
 # =============================================================
 
 # --- Catalog -------------------------------------------------
-# Path to the .fits or .zip catalog file.
-# Can be a relative path (from wherever you run the script)
-# or an absolute path.
+# Path to the .fits, .zip, or .gz catalog file.
+# Can be a relative path or an absolute path.
 
-catalog_path = /Users/skterry/work/Roman_HST_Precursor_Survey/Data/DR1_and_Figures/thor.fits.gz
+catalog_path = ../data/terry_early_release_cat.fits.zip
 
 # --- Search parameters ---------------------------------------
 # RA and DEC of the search centre.
@@ -27,12 +25,12 @@ catalog_path = /Users/skterry/work/Roman_HST_Precursor_Survey/Data/DR1_and_Figur
 #   HMS / DMS        :  17h43m37.2s   /  -29d00m25s
 #   Colon-separated  :  17:43:37.2    /  -29:00:25
 
-ra            = 17:51:48.8
-dec           = -30:02:33.43
+ra            = 17:51:15.0670
+dec           = -30:12:46.977
 
 # Search radius in arcseconds (must be > 0).
 
-radius_arcsec = 60
+radius_arcsec = 90
 
 # --- Output options ------------------------------------------
 # Save the result table to a file?  yes / no
@@ -43,7 +41,7 @@ save_results  = yes
 
 save_format   = fits
 
-# Generate and save a colour-magnitude diagram (CMD)?  yes / no
+# Generate and save a color-magnitude diagram (CMD)?  yes / no
 
 plot_cmd      = yes
 
@@ -53,21 +51,21 @@ plot_cmd      = yes
 plot_lf  = yes
 lf_band  = F814W
 
-#If plotting luminosity function, want to normalize the LF? yes/no
+#If plotting luminosity function, want to normalize the LF by sky area? yes/no
 
 lf_normalise = no
 
 #Download an HST cutout image from MAST centered on the target coordinates? yes / no
-# If downloading image from MAST, what pixel size for the cutout (pix)?
+#If downloading image from MAST, what pixel size for the cutout (pix)?
 
 image_cut = yes
-imagecut_size = 200
+imagecut_size = 250
 
-#HST program ID to query for the cutout image?
+#HST program ID to query for the cutout image? Default: 17776 (Terry et al.)
 
 imagecut_pid = 17776
 
-#Output directory name?
+#Output directory name? Can be a relative path or an absolute path.
 
 output_dir = output
 
