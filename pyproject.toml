@@ -10,7 +10,7 @@ build-backend = "thor_build"
 backend-path = ["."]
 
 [project]
-name = "thor-drp"
+name = "thor"
 version = "0.2.0"
 description = "THOR: Terry Hubble Observations of Roman — a data-reduction pipeline for HST WFC3/ACS imaging of the Roman Galactic Bulge fields (GO-17776)."
 readme = "README.md"
