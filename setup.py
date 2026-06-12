@@ -23,6 +23,7 @@ editable installs under modern pip/setuptools) and from the ``develop`` command
 import os
 import shutil
 import subprocess
+import zipfile
 from pathlib import Path
 
 from setuptools import setup
@@ -48,10 +49,14 @@ FORTRAN_TARGETS = [
 # same list.
 FORTRAN_COMPILERS = ["gfortran", "ifx", "ifort", "flang-new", "flang", "g77", "f77"]
 
-# (Google Drive file id, destination filename under data/)
+# (Google Drive file id, destination filename under data/, extracted path)
+# When the third element is non-None, the downloaded archive is extracted into
+# data/ and the .zip is deleted afterwards. The extracted path is the entry the
+# archive expands to (relative to data/); its presence is what makes the
+# download+extract idempotent, since the .zip itself is removed.
 DATA_FILES = [
-    ("17peXwwP6HzZrwOqFuYp-16odfVQkTJof", "field_HD138.zip"),
-    ("1U-pTnDQ3Wmws1mhxBR3nMdf8DZ5sLz-P", "thor_hst_wfc3_acs_bulge_v0.2_cat.fits.zip"),
+    ("17peXwwP6HzZrwOqFuYp-16odfVQkTJof", "field_HD138.zip", "field_HD138"),
+    ("1U-pTnDQ3Wmws1mhxBR3nMdf8DZ5sLz-P", "thor_hst_wfc3_acs_bulge_v0.2_cat.fits.zip", None),
 ]
 
 # Run the custom steps at most once per interpreter process, even if more than
@@ -121,6 +126,26 @@ def compile_fortran():
             print(f"  WARNING: failed to compile {source} (exit {exc.returncode}).")
 
 
+def _extract_and_cleanup(archive):
+    """Unzip ``archive`` into data/, then delete the archive.
+
+    A failed extraction leaves the archive in place so a re-run can retry.
+    """
+    print(f"  Extracting {archive.name} into {DATA_DIR}/ ...")
+    try:
+        with zipfile.ZipFile(archive) as zf:
+            zf.extractall(DATA_DIR)
+    except (zipfile.BadZipFile, OSError) as exc:
+        print(f"  WARNING: failed to extract {archive.name}: {exc}")
+        return
+
+    try:
+        archive.unlink()
+        print(f"  Extracted and removed {archive.name}.")
+    except OSError as exc:
+        print(f"  WARNING: extracted {archive.name} but could not remove it: {exc}")
+
+
 def download_data():
     """Download the large data archives from Google Drive (idempotent)."""
     _banner("THOR setup [2/2]: downloading data archives to data/ "
@@ -137,22 +162,39 @@ def download_data():
               "`pip install -e .`.")
         return
 
-    for file_id, filename in DATA_FILES:
+    for file_id, filename, extracted in DATA_FILES:
         dest = DATA_DIR / filename
-        if dest.exists() and dest.stat().st_size > 0:
+        extracted_path = (DATA_DIR / extracted) if extracted else None
+
+        # Already-done checks. For extracted archives the .zip is gone, so we key
+        # off the extracted path instead of the archive itself.
+        if extracted_path is not None and extracted_path.exists():
+            print(f"  {filename} already downloaded and extracted ({extracted}/); "
+                  "skipping.")
+            continue
+        if extracted_path is None and dest.exists() and dest.stat().st_size > 0:
             print(f"  {filename} already present ({dest.stat().st_size / 1e6:.0f} MB); "
                   "skipping.")
             continue
-        print(f"  Downloading {filename} ...")
-        try:
-            # quiet=False renders a tqdm progress bar; gdown handles Google
-            # Drive's large-file confirmation tokens automatically.
-            gdown.download(id=file_id, output=str(dest), quiet=False)
-        except Exception as exc:  # noqa: BLE001 - keep install resilient
-            print(f"  WARNING: failed to download {filename}: {exc}")
-            # Remove any partial file so a re-run starts clean.
-            if dest.exists() and dest.stat().st_size == 0:
-                dest.unlink(missing_ok=True)
+
+        # Download the archive unless it's already sitting on disk (e.g. a
+        # previous run downloaded it but didn't get to extract it).
+        if not (dest.exists() and dest.stat().st_size > 0):
+            print(f"  Downloading {filename} ...")
+            try:
+                # quiet=False renders a tqdm progress bar; gdown handles Google
+                # Drive's large-file confirmation tokens automatically.
+                gdown.download(id=file_id, output=str(dest), quiet=False)
+            except Exception as exc:  # noqa: BLE001 - keep install resilient
+                print(f"  WARNING: failed to download {filename}: {exc}")
+                # Remove any partial file so a re-run starts clean.
+                if dest.exists() and dest.stat().st_size == 0:
+                    dest.unlink(missing_ok=True)
+                continue
+
+        # Extract into data/ and drop the archive, if requested.
+        if extracted_path is not None:
+            _extract_and_cleanup(dest)
 
 
 def run_thor_setup():
