@@ -1,0 +1,35 @@
+[build-system]
+# gdown + tqdm are listed here (not just in [project].dependencies) so that
+# they are importable inside pip's isolated build environment, where the
+# custom install steps in setup.py (compile Fortran, download data) run.
+requires = ["setuptools>=64", "wheel", "gdown>=5.1", "tqdm>=4.65"]
+# In-tree build backend (thor_build.py) that wraps setuptools to run the custom
+# Fortran-compile + data-download steps during the build. backend-path puts the
+# project root on sys.path so the backend module can be imported.
+build-backend = "thor_build"
+backend-path = ["."]
+
+[project]
+name = "thor-drp"
+version = "0.2.0"
+description = "THOR: Terry Hubble Observations of Roman — a data-reduction pipeline for HST WFC3/ACS imaging of the Roman Galactic Bulge fields (GO-17776)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "Sean K. Terry" }]
+
+dependencies = [
+    "numpy",
+    "astropy",
+    "matplotlib",
+    # Needed at runtime as well so `pip install --no-build-isolation` works and
+    # so the download step can be re-run manually (see setup.py).
+    "gdown>=5.1",
+    "tqdm>=4.65",
+]
+
+[tool.setuptools]
+# This project is driven by Fortran executables and standalone scripts rather
+# than an importable Python package, so there are no packages to collect. The
+# real work happens in the custom build commands defined in setup.py.
+py-modules = []

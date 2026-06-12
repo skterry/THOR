@@ -41,3 +41,20 @@
 *.dwo
 .DS_Store
 **/.DS_Store
+
+# Python build/cache artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# THOR build artifacts (compiled by `pip install -e .`)
+/src/thor/hst1pass
+/src/thor/thor_go
+
+# THOR data archives downloaded by `pip install -e .` (~1 GB each).
+# The smaller early-release catalog zip is committed to the repo, so only the
+# large Google-Drive downloads are ignored here.
+/data/field_HD138.zip
+/data/thor_hst_wfc3_acs_bulge_v0.2_cat.fits.zip

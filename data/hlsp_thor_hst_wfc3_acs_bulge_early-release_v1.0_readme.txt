@@ -1,0 +1,57 @@
+These are version 1 high-level science products from GO-17776, "A Precursor Survey of the Roman Galactic Bulge Time Domain Fields".
+The early-release catalog includes 8 fields in the Galactic bulge (HD16-ACS, HD16-WFC3UV, HD70-ACS, HD70-WFC3UV, HD98-ACS, HD98-WFC3UV,
+HD138-ACS, and HD138-WFC3UV), where we provide ACS and WFC3 photometry, astrometry, as well as photometry for cross-identified sources
+in GO-17173 (Nataf et al.) and Gaia DR3. The astrometry is given in distortion-free pixel coordinates and equatorial coordinates (degrees, J2000).
+Drizzled images for this program can be accessed via MAST as part of Hubble Advanced Products (HAP). The early-release catalog is assigned
+the DOI: 10.17909/fq12-f295.
+
+An overview of the program can be found in:
+Terry et al. 2026, ApJL, 1003, L1
+
+The v1.0 catalogs were created using Jay Anderson's "hst1pass"
+code (Anderson 2022).  This code performs photometry on the individual exposures
+by fitting an empirical model of the point spread function (PSF). The
+resulting catalogs have been placed in the Gaia DR3 reference frame for each field.
+A cleaner catalog can be constructed for stars with 'N_detect' equal to either 3 or 4.
+
+*******************************************************
+Files:
+
+hlsp_thor_hst_wfc3_acs_bulge_early-release_v1.0_cat.fits - FITS table of the early release catalog
+*******************************************************
+
+The FITS table catalog contains the following entries:
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label       Explanations
+--------------------------------------------------------------------------------
+   1- 10 A10    ---     HST_ID      Assigned ID of source
+  12- 19 F8.3   pix     X           x position in image
+  21- 25 F5.3   pix     X_err       Uncertainty in X
+  27- 34 F8.3   pix     Y           y position in image
+  36- 40 F5.3   pix     Y_err       Uncertainty in Y
+  42- 47 F6.3   mag     F606Wmag    Calibrated apparent Vega magnitude in F606W, V
+  49- 53 F5.3   mag   e_F606Wmag    Uncertainty in F606Wmag
+  55- 60 F6.3   mag     F814Wmag    Calibrated apparent Vega magnitude in F814W, I
+  62- 66 F5.3   mag   e_F814Wmag    Uncertainty in F814Wmag
+  68- 68 I1     ---     N_detect    Number of exposures detected, max = 4
+  70- 81 A12    ---     HST_field   Field name and detector, *_ACS or *_WFC3UV
+  83- 88 F6.3   mag     F098Mmag    Calibrated apparent Vega magnitude in F098M, WFC3-IR
+  90- 94 F5.3   mag   e_F098Mmag    Uncertainty in F098Mmag
+  96-101 F6.3   mag     F139Mmag    Calibrated apparent Vega magnitude in F139M, WFC3-IR
+ 103-107 F5.3   mag   e_F139Mmag    Uncertainty in F139Mmag
+ 109-114 F6.3   mag     F153Mmag    Calibrated apparent Vega magnitude in F153M, WFC3-IR
+ 116-121 F6.3   mag   e_F153Mmag    Uncertainty in F153Mmag
+ 123-128 F6.3   mag     F167Nmag    Calibrated apparent Vega magnitude in F167N, WFC3-IR
+ 130-135 F6.3   mag   e_F167Nmag    Uncertainty in F167Nmag
+ 137-142 F6.3   mag     F130Nmag    Calibrated apparent Vega magnitude in F130N, WFC3-IR
+ 144-149 F6.3   mag   e_F130Nmag    Uncertainty in F130Nmag
+ 151-169 I19    ---     GaiaDR3_ID  ID of source in Gaia DR3
+ 171-176 F6.3   mag     Gmag        Apparent Gaia G magnitude
+ 178-183 F6.3   mag     BPmag       Apparent Gaia BP magnitude
+ 185-190 F6.3   mag     RPmag       Apparent Gaia RP magnitude
+ 192-202 F11.7  deg     RAdeg       Right ascension in decimal degrees (J2000)
+ 204-214 F11.7  deg     DEdeg       Declination in decimal degrees (J2000)
+--------------------------------------------------------------------------------
+Note (1): The WFC3-IR photometry was reduced using DOLPHOT. The full reduction 
+          and calibration methods for the WFC3-IR data will be presented in 
+          Nataf et al. (in prep).

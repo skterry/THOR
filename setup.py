@@ -1,0 +1,209 @@
+"""
+THOR — build/install hooks.
+
+Running ``pip install -e .`` from the top-level directory triggers two custom
+setup steps, in addition to the normal (no-op) Python install:
+
+  1. Compile the Fortran sources in ``src/thor/`` (hst1pass.F, thor_go.F) into
+     bare executables, using whatever Fortran compiler the user has installed
+     (gfortran, ifort/ifx, flang, ...). This is delegated to the Makefile in
+     that directory, which auto-detects the compiler.
+
+  2. Download the two large (~1 GB each) data archives from Google Drive into
+     ``data/``, showing a progress bar for each.
+
+Both steps are idempotent: already-built executables and already-downloaded
+files are left alone, so re-running the install is cheap.
+
+These steps run from the ``build_py`` command (used by both regular and
+editable installs under modern pip/setuptools) and from the ``develop`` command
+(used by the legacy ``setup.py develop`` editable path).
+"""
+
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+from setuptools import setup
+from setuptools.command.build_py import build_py
+from setuptools.command.develop import develop
+
+# --------------------------------------------------------------------------- #
+# Configuration
+# --------------------------------------------------------------------------- #
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+THOR_DIR = PROJECT_ROOT / "src" / "thor"
+DATA_DIR = PROJECT_ROOT / "data"
+
+# Fortran sources -> output executable name (no extension).
+FORTRAN_TARGETS = [
+    ("hst1pass.F", "hst1pass"),
+    ("thor_go.F", "thor_go"),
+]
+
+# Fortran compilers to look for, in order of preference, when falling back to
+# direct compilation (i.e. when `make` is unavailable). The Makefile uses the
+# same list.
+FORTRAN_COMPILERS = ["gfortran", "ifx", "ifort", "flang-new", "flang", "g77", "f77"]
+
+# (Google Drive file id, destination filename under data/)
+DATA_FILES = [
+    ("17peXwwP6HzZrwOqFuYp-16odfVQkTJof", "field_HD138.zip"),
+    ("1U-pTnDQ3Wmws1mhxBR3nMdf8DZ5sLz-P", "thor_hst_wfc3_acs_bulge_v0.2_cat.fits.zip"),
+]
+
+# Run the custom steps at most once per interpreter process, even if more than
+# one command (build_py + develop) is invoked.
+_STEPS_DONE = False
+
+
+# --------------------------------------------------------------------------- #
+# Helpers
+# --------------------------------------------------------------------------- #
+
+def _banner(msg):
+    line = "=" * 70
+    print("\n" + line + "\n" + msg + "\n" + line, flush=True)
+
+
+def _find_fortran_compiler():
+    for compiler in FORTRAN_COMPILERS:
+        path = shutil.which(compiler)
+        if path:
+            return compiler
+    return None
+
+
+def compile_fortran():
+    """Compile the Fortran sources into executables (idempotent)."""
+    _banner("THOR setup [1/2]: compiling Fortran sources in src/thor/")
+
+    if not THOR_DIR.is_dir():
+        print(f"  WARNING: {THOR_DIR} not found; skipping Fortran build.")
+        return
+
+    # Prefer the Makefile (it auto-detects the compiler and only rebuilds when a
+    # source is newer than its executable). Fall back to compiling directly if
+    # `make` is not on PATH.
+    if shutil.which("make"):
+        try:
+            subprocess.check_call(["make", "-C", str(THOR_DIR)])
+            return
+        except subprocess.CalledProcessError as exc:
+            print(f"  WARNING: `make` failed (exit {exc.returncode}); "
+                  f"trying direct compilation.")
+
+    compiler = _find_fortran_compiler()
+    if not compiler:
+        print("  WARNING: no Fortran compiler found on PATH "
+              f"(looked for: {', '.join(FORTRAN_COMPILERS)}).")
+        print("           Install one (e.g. gfortran) and re-run "
+              "`pip install -e .`, or run `make` in src/thor/ yourself.")
+        return
+
+    print(f"  Using Fortran compiler: {compiler}")
+    for source, exe in FORTRAN_TARGETS:
+        src_path = THOR_DIR / source
+        exe_path = THOR_DIR / exe
+        if not src_path.is_file():
+            print(f"  WARNING: source {src_path} missing; skipping.")
+            continue
+        # Skip if up to date.
+        if exe_path.exists() and exe_path.stat().st_mtime >= src_path.stat().st_mtime:
+            print(f"  {exe} is up to date.")
+            continue
+        print(f"  Compiling {source} -> {exe}")
+        try:
+            subprocess.check_call([compiler, source, "-o", exe], cwd=str(THOR_DIR))
+        except subprocess.CalledProcessError as exc:
+            print(f"  WARNING: failed to compile {source} (exit {exc.returncode}).")
+
+
+def download_data():
+    """Download the large data archives from Google Drive (idempotent)."""
+    _banner("THOR setup [2/2]: downloading data archives to data/ "
+            "(~1 GB each — this may take a while)")
+
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    try:
+        import gdown
+    except ImportError:
+        print("  WARNING: `gdown` is not installed, so the data files cannot be "
+              "downloaded automatically.")
+        print("           Install it with `pip install gdown` and re-run "
+              "`pip install -e .`.")
+        return
+
+    for file_id, filename in DATA_FILES:
+        dest = DATA_DIR / filename
+        if dest.exists() and dest.stat().st_size > 0:
+            print(f"  {filename} already present ({dest.stat().st_size / 1e6:.0f} MB); "
+                  "skipping.")
+            continue
+        print(f"  Downloading {filename} ...")
+        try:
+            # quiet=False renders a tqdm progress bar; gdown handles Google
+            # Drive's large-file confirmation tokens automatically.
+            gdown.download(id=file_id, output=str(dest), quiet=False)
+        except Exception as exc:  # noqa: BLE001 - keep install resilient
+            print(f"  WARNING: failed to download {filename}: {exc}")
+            # Remove any partial file so a re-run starts clean.
+            if dest.exists() and dest.stat().st_size == 0:
+                dest.unlink(missing_ok=True)
+
+
+def run_thor_setup():
+    """Run both custom setup steps once."""
+    global _STEPS_DONE
+    if _STEPS_DONE:
+        return
+    _STEPS_DONE = True
+
+    # Allow opting out (e.g. for CI or quick reinstalls).
+    if os.environ.get("THOR_SKIP_SETUP"):
+        print("THOR_SKIP_SETUP set; skipping Fortran build and data download.")
+        return
+
+    compile_fortran()
+    download_data()
+    _banner("THOR setup complete.")
+
+
+# --------------------------------------------------------------------------- #
+# Custom commands
+# --------------------------------------------------------------------------- #
+
+class BuildPyCommand(build_py):
+    """Standard + modern editable installs route through build_py."""
+
+    def run(self):
+        run_thor_setup()
+        super().run()
+
+
+class DevelopCommand(develop):
+    """Legacy `setup.py develop` / older editable installs."""
+
+    def run(self):
+        run_thor_setup()
+        super().run()
+
+
+# The PEP 517 build backend (see thor_build.py / pyproject.toml) calls
+# run_thor_setup() directly, which is what makes `pip install -e .` trigger the
+# Fortran build and data download under modern pip. The cmdclass overrides below
+# additionally cover the legacy `python setup.py develop` path; thanks to the
+# idempotent steps, running via both paths is harmless.
+#
+# Guarded so that `import setup` (done by the build backend to reach
+# run_thor_setup) does not kick off an actual build.
+if __name__ == "__main__":
+    setup(
+        cmdclass={
+            "build_py": BuildPyCommand,
+            "develop": DevelopCommand,
+        },
+    )
