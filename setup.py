@@ -134,7 +134,9 @@ def _extract_and_cleanup(archive):
     print(f"  Extracting {archive.name} into {DATA_DIR}/ ...")
     try:
         with zipfile.ZipFile(archive) as zf:
-            zf.extractall(DATA_DIR)
+            # Skip __MACOSX resource-fork entries added by macOS zip tools.
+            members = [m for m in zf.namelist() if not m.startswith("__MACOSX/")]
+            zf.extractall(DATA_DIR, members=members)
     except (zipfile.BadZipFile, OSError) as exc:
         print(f"  WARNING: failed to extract {archive.name}: {exc}")
         return
@@ -180,10 +182,12 @@ def download_data():
         # Download the archive unless it's already sitting on disk (e.g. a
         # previous run downloaded it but didn't get to extract it).
         if not (dest.exists() and dest.stat().st_size > 0):
-            print(f"  Downloading {filename} ...")
+            print(f"  Downloading {filename} ... (this may take several minutes)",
+                  flush=True)
             try:
-                # quiet=False renders a tqdm progress bar; gdown handles Google
-                # Drive's large-file confirmation tokens automatically.
+                # quiet=False requests a tqdm progress bar; note that tqdm
+                # suppresses the bar when stdout is not a tty (e.g. under pip),
+                # so we print file size afterwards as a fallback confirmation.
                 gdown.download(id=file_id, output=str(dest), quiet=False)
             except Exception as exc:  # noqa: BLE001 - keep install resilient
                 print(f"  WARNING: failed to download {filename}: {exc}")
@@ -191,6 +195,9 @@ def download_data():
                 if dest.exists() and dest.stat().st_size == 0:
                     dest.unlink(missing_ok=True)
                 continue
+            if dest.exists():
+                print(f"  Downloaded {filename} ({dest.stat().st_size / 1e6:.0f} MB).",
+                      flush=True)
 
         # Extract into data/ and drop the archive, if requested.
         if extracted_path is not None:
