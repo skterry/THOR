@@ -18,7 +18,7 @@
 # Can be a relative path
 # or an absolute path.
 
-catalog_path = /Users/skterry/work/Roman_HST_Precursor_Survey/Data/DR1_and_Figures/thor.fits.gz
+catalog_path = ../../data/thor_hst_wfc3_acs_bulge_v0.2_cat.fits.zip
 
 # --- Search parameters ---------------------------------------
 # RA and DEC of the search centre.
