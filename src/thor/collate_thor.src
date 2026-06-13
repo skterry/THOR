@@ -1,2 +1,2 @@
 # Run thor_go on the *_xympquvwrd files, F606W first then F814W
-../thor_go *.F606W_xympquvwrd *.F814W_xympquvwrd
+../thor_go *.F606W_xympquvwrd *.F814W_xympquvwrd -datadir ../../../data/field_HD138/ACS/DATA/

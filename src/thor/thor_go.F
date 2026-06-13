@@ -17377,7 +17377,7 @@ c
  
  
  
-      program master_go17776
+      program thor_go
       implicit none
  
  
@@ -17459,6 +17459,7 @@ c
       integer NARG, NARGs
       character*200 STRING_ARG(99)
       character*200 FILENAME
+      character*200 DATADIR
       integer NARG_V1, NARG_V2
       integer NARG_I1, NARG_I2
  
@@ -17595,7 +17596,27 @@ c
           print*,' '
           stop
           endif
- 
+
+c
+c     determine the directory that holds the F606W/ and F814W/ image
+c     sub-directories.  it defaults to ../DATA/ but may be overridden
+c     on the command line with:  -datadir <path>
+c
+      DATADIR = '../DATA/'
+      do NARG = 1, NARGs
+         call getarg(NARG,STRING200)
+         if (STRING200(1:8).eq.'-datadir') then
+             if (NARG.eq.NARGs) then
+                 print*,'-datadir flag given without a path.'
+                 stop
+                 endif
+             call getarg(NARG+1,DATADIR)
+             endif
+         enddo!NARG
+      L = len_trim(DATADIR)
+      if (DATADIR(L:L).ne.'/') DATADIR = DATADIR(1:L) // '/'
+      write(*,'(''        DATA DIRECTORY: '',a)') trim(DATADIR)
+
       write(*,*)
       write(*,*)
       write(*,'(''STEP1:  DETERMINE THE PHOTOMETRY FILES'')')
@@ -17670,7 +17691,7 @@ c
       write(*,'(''        EXPOSURE.                     '')')
       write(*,*)
  
-      open(21,file='master_go17776_STEP02_A.nim_info',status='unknown')
+      open(21,file='thor_go_STEP02_A.nim_info',status='unknown')
       do N = 1, 4
          if (N.eq.1) FILENAME = STRING_ARG(NARG_V1)
          if (N.eq.2) FILENAME = STRING_ARG(NARG_V2)
@@ -17837,7 +17858,7 @@ c
       write(*,*)
  
  
-      open(51,file='master_go17776_STEP05_A.uvm_gaia',status='unknown')
+      open(51,file='thor_go_STEP05_A.uvm_gaia',status='unknown')
       write(51,'(''#'')')
       write(51,'(''# RA_CEN: '',f15.8)') RA_CEN
       write(51,'(''# DE_CEN: '',f15.8)') DE_CEN
@@ -17870,7 +17891,7 @@ c        vv_g(G) = 5001 + dde*60*60/0.040                               !     mo
          enddo
       close(51)
  
-      open(52,file='master_go17776_STEP05_B.uvrd_1p',status='unknown')
+      open(52,file='thor_go_STEP05_B.uvrd_1p',status='unknown')
       write(52,'(''#'')')
       write(52,'(''# RA_CEN: '',f15.8)') RA_CEN
       write(52,'(''# DE_CEN: '',f15.8)') DE_CEN
@@ -17895,9 +17916,9 @@ c        vv_g(G) = 5001 + dde*60*60/0.040                               !     mo
       write(*,'(''STEP6:  MATCH EACH EXPOSURE TO GAIA'')')
       write(*,*)
  
-      open(61,file='master_go17776_STEP06_A.mat_gaia_list',
+      open(61,file='thor_go_STEP06_A.mat_gaia_list',
      .        status='unknown')
-      open(62,file='master_go17776_STEP06_B.mat_gaia_info',
+      open(62,file='thor_go_STEP06_B.mat_gaia_info',
      .        status='unknown')
       write(61,'(''#'')')
       write(61,'(''#  COL(01):  xgc  '')')
@@ -18187,7 +18208,7 @@ c
       write(*,'(''STEP8:  REFINE MASTER LIST '')')
       write(*,*)
  
-      open(81,file='master_go17776_STEP08_A.xyvieeee',
+      open(81,file='thor_go_STEP08_A.xyvieeee',
      .        status='unknown')
       do N = 1, 4
          Lu = 0
@@ -18371,7 +18392,7 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
          enddo
          enddo
  
-      open(91,file='master_go17776_STEP09_A.gaia_linkup',
+      open(91,file='thor_go_STEP09_A.gaia_linkup',
      .        status='unknown')
       write(91,391)
       write(91,291)
@@ -18468,13 +18489,17 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
          if (V1I2.eq.2) print*,'READ IN IMAGES FOR F814W... '
          print*,' '
          do NIM = 1, 2
-            if (V1I2.eq.1.and.NIM.eq.1) FILENAME = '../DATA/F606W/'
+            if (V1I2.eq.1.and.NIM.eq.1) FILENAME = trim(DATADIR)
+     .                               // 'F606W/'
      .                               // trim(STRING_ARG(NARG_V1))
-            if (V1I2.eq.1.and.NIM.eq.2) FILENAME = '../DATA/F606W/'
+            if (V1I2.eq.1.and.NIM.eq.2) FILENAME = trim(DATADIR)
+     .                               // 'F606W/'
      .                               // trim(STRING_ARG(NARG_V2))
-            if (V1I2.eq.2.and.NIM.eq.1) FILENAME = '../DATA/F814W/'
+            if (V1I2.eq.2.and.NIM.eq.1) FILENAME = trim(DATADIR)
+     .                               // 'F814W/'
      .                               // trim(STRING_ARG(NARG_I1))
-            if (V1I2.eq.2.and.NIM.eq.2) FILENAME = '../DATA/F814W/'
+            if (V1I2.eq.2.and.NIM.eq.2) FILENAME = trim(DATADIR)
+     .                               // 'F814W/'
      .                               // trim(STRING_ARG(NARG_I2))
             do i = 1, 180
                if (FILENAME(i:i+4).eq.'_flc.') then
@@ -18624,8 +18649,8 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
      .                    5x,f8.2,5x,f8.2,1x,f8.2)
             enddo!i
             enddo!j
-         if (V1I2.eq.1) FILENAME = 'master_go17776_STEP10A_F606W.fits'
-         if (V1I2.eq.2) FILENAME = 'master_go17776_STEP10B_F814W.fits'
+         if (V1I2.eq.1) FILENAME = 'thor_go_STEP10A_F606W.fits'
+         if (V1I2.eq.2) FILENAME = 'thor_go_STEP10B_F814W.fits'
          call writfits_r4_WCSLTV(FILENAME,pixo,UDIM,VDIM,
      .                              CRPIX1,CRPIX2,CRVAL1,CRVAL2,
      .                              CD1_1, CD1_2, CD2_1, CD2_2,
@@ -18636,7 +18661,7 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
       deallocate(pixo)
  
  
-      open(71,file='master_go17776_STEP10C_GAIA.reg',status='unknown')
+      open(71,file='thor_go_STEP10C_GAIA.reg',status='unknown')
       write(71,'(''# Region file format: DS9 version 4.1'')')
       write(71,'(''global color=yellow dashlist=8 3 width=3'')')
       write(71,'(''fk5'')')
@@ -18658,7 +18683,7 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
          enddo
       close(71)
  
-      open(72,file='master_go17776_STEP10D_HST.reg',status='unknown')
+      open(72,file='thor_go_STEP10D_HST.reg',status='unknown')
       write(72,'(''# Region file format: DS9 version 4.1'')')
       write(72,'(''global color=yellow width=1'')')
       write(72,'(''physical'')')

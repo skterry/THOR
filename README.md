@@ -47,18 +47,18 @@ Reducing the HST bulge survey data with THOR requires two steps:
 1. Reduce the ACS and WFC3 images:
 
    ```bash
-   reduce_acs.src
-   reduce_wfc3.src
+   source reduce_acs.src
+   source reduce_wfc3.src
    ```
 
 2. Collate the reduced data:
 
    ```bash
-   collate_thor.src
+   source collate_thor.src
    ```
 
 These scripts can be run from inside the directory `example/thor_HD138/` to learn the reduction process. If you have downloaded
-external images from the survey and wish to reduce them with THOR, you will need to modify the `*.src` scripts.
+external images from the survey and wish to reduce them with THOR, you will need to modify all `*.src` scripts.
 
 ### Running HAMRR
 Using HAMRR to query the HST bulge survey catalog(s) is relatively straightforward:
@@ -66,10 +66,10 @@ Using HAMRR to query the HST bulge survey catalog(s) is relatively straightforwa
 python path/to/hamrr.py
 ```
 HAMRR can be run in two modes: 
-1. Interactive-mode via command line interface (CLI).
+1. Interactive-mode via command line interface (CLI). This mode runs if there is no param file present (see below).
 
 2. Parameter-file mode: If the file named `params.in` exists in the directory where `hamrr.py` is run, the code will read all 
-pre-defined arguments written in the param file.
+pre-defined arguments given in the param file.
 
 Required arguments for `hamrr.py`:
 - `catalog_path`: Path to THOR-generated catalog (e.g. `/data/hlsp_thor_hst_wfc3_acs_bulge_early-release_v1.0_cat.fits.zip`)
