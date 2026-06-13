@@ -1,4 +1,2 @@
-hst1pass HMIN=5 FMIN=25 PSF=/Users/skterry/code/fortran/hst/PSFs/STDPSF_ACSWFC_F606W_SM4.fits GDC=/Users/skterry/code/fortran/hst/GDCs/STDGDC_OFFICIAL_JFRAME_ACSWFC_F606W.fits SHOW_REF- SHOW_SUB+ OUT=xympquvwrd REG=uv PERT=1 ../DATA/F606W/*_flc.fits
-for f in *.xympquvwrd; do mv "$f" "${f%.xympquvwrd}.F606W_xympquvwrd"; done
-hst1pass HMIN=5 FMIN=25 PSF=/Users/skterry/code/fortran/hst/PSFs/STDPSF_ACSWFC_F814W_SM3.fits GDC=/Users/skterry/code/fortran/hst/GDCs/STDGDC_OFFICIAL_JFRAME_ACSWFC_F814W.fits SHOW_REF+ SHOW_SUB+ OUT=xympquvwrd REG=uv PERT=1 ../DATA/F814W/*_flc.fits
-for f in *.xympquvwrd; do mv "$f" "${f%.xympquvwrd}.F814W_xympquvwrd"; done
+# Run thor_go on the *_xympquvwrd files, F606W first then F814W
+../thor_go *.F606W_xympquvwrd *.F814W_xympquvwrd
