@@ -145,13 +145,13 @@ class CoordinateParser:
     @staticmethod
     def _hms_to_deg(raw: str) -> float:
         """Convert an H:M:S string to decimal degrees (1 hour = 15°)."""
-        # Normalise separators so regex can match
-        normalised = raw.strip().replace("h", ":").replace("m", ":").replace("s", "")
-        parts = re.split(r"[:\s]+", normalised.strip())
+        # normalize separators so regex can match
+        normalized = raw.strip().replace("h", ":").replace("m", ":").replace("s", "")
+        parts = re.split(r"[:\s]+", normalized.strip())
         if len(parts) < 2:
             raise ValueError(f"Not enough components in HMS string: '{raw}'")
 
-        sign = -1 if normalised.lstrip().startswith("-") else 1
+        sign = -1 if normalized.lstrip().startswith("-") else 1
         h    = abs(float(parts[0]))
         m    = float(parts[1]) if len(parts) > 1 else 0.0
         s    = float(parts[2]) if len(parts) > 2 else 0.0
@@ -169,12 +169,12 @@ class CoordinateParser:
     @staticmethod
     def _dms_to_deg(raw: str) -> float:
         """Convert a D:M:S string to decimal degrees."""
-        normalised = raw.strip().replace("d", ":").replace("°", ":") \
+        normalized = raw.strip().replace("d", ":").replace("°", ":") \
                                .replace("m", ":").replace("'", ":") \
                                .replace("s", "").replace('"', "")
         # Preserve leading sign before splitting
-        sign = -1 if normalised.lstrip().startswith("-") else 1
-        parts = re.split(r"[:\s]+", normalised.strip().lstrip("+-"))
+        sign = -1 if normalized.lstrip().startswith("-") else 1
+        parts = re.split(r"[:\s]+", normalized.strip().lstrip("+-"))
         if len(parts) < 2:
             raise ValueError(f"Not enough components in DMS string: '{raw}'")
 
@@ -372,7 +372,7 @@ class StarCatalog:
     def plot_cmd(self, result: Table, ra: float, dec: float,
                  radius_arcsec: float, output_dir: str = "output") -> None:
         """
-        Plot a colour-magnitude diagram (CMD) for the cone search results
+        Plot a color-magnitude diagram (CMD) for the cone search results
         and save it as a PNG file.
 
         X-axis : F606W − F814W
@@ -445,7 +445,7 @@ class StarCatalog:
 
     def plot_lf(self, result: Table, ra: float, dec: float,
                 radius_arcsec: float, band: str = "F814W",
-                normalise: bool = False, output_dir: str = "output") -> None:
+                normalize: bool = False, output_dir: str = "output") -> None:
         """
         Plot a luminosity function (magnitude histogram) for the cone search
         results and save it as a PNG file.
@@ -461,7 +461,7 @@ class StarCatalog:
             dec           : Search centre DEC (decimal degrees) — used in filename/title.
             radius_arcsec : Search radius in arcseconds         — used in filename/title.
             band          : Filter band to plot — "F814W" (default) or "F606W".
-            normalise     : If True, divide counts by the cone area in arcmin²,
+            normalize     : If True, divide counts by the cone area in arcmin²,
                             giving units of stars mag⁻¹ arcmin⁻².
                             If False (default), plot raw star counts.
             output_dir    : Directory in which to save the PNG  (default: "output").
@@ -494,7 +494,7 @@ class StarCatalog:
             print(f"  No stars with valid {band} magnitudes — skipping LF plot.")
             return
 
-        # --- Cone area (always computed; only used when normalise=True) ---
+        # --- Cone area (always computed; only used when normalize=True) ---
         radius_arcmin = radius_arcsec / 60.0
         area_arcmin2  = math.pi * radius_arcmin ** 2
 
@@ -507,8 +507,8 @@ class StarCatalog:
         counts, _   = np.histogram(mags, bins=bins)
         bin_centers = 0.5 * (bins[:-1] + bins[1:])
 
-        # Normalise by sky area if requested, otherwise use raw counts
-        if normalise:
+        # normalize by sky area if requested, otherwise use raw counts
+        if normalize:
             y_values = counts / area_arcmin2
             y_label  = r"stars / mag / arcmin$^2$"
             area_str = f"  area={area_arcmin2:.3f} arcmin²"
@@ -582,11 +582,11 @@ class ParamFileReader:
     dec            : Search centre DEC — decimal degrees or DMS  (required)
     radius_arcsec  : Search radius in arcseconds                 (required)
     save_results   : yes / no   — save the result table          (default: no)
-    save_format    : fits / csv / ecsv                           (default: fits)
+    save_format    : fits / ecsv / votable                       (default: fits)
     plot_cmd       : yes / no   — generate a CMD plot            (default: no)
     plot_lf        : yes / no   — generate a luminosity function (default: no)
     lf_band        : F814W / F606W  — band for the LF plot       (default: F814W)
-    lf_normalise   : yes / no   — normalise LF by sky area       (default: no)
+    lf_normalize   : yes / no   — normalize LF by sky area       (default: no)
                      yes = stars mag⁻¹ arcmin⁻² ;  no = raw star counts
     imagecut         : yes / no   — download HST cutout from MAST   (default: no)
     imagecut_pid     : HST program ID to query                      (default: 17776)
@@ -606,11 +606,11 @@ class ParamFileReader:
     dec           = -29:00:25
     radius_arcsec = 18.0
     save_results  = yes
-    save_format   = csv
+    save_format   = votable
     plot_cmd      = yes
     plot_lf       = yes
     lf_band       = F814W
-    lf_normalise  = no
+    lf_normalize  = no
     """
 
     # Keys that must be present
@@ -623,7 +623,7 @@ class ParamFileReader:
         "plot_cmd":      "no",
         "plot_lf":       "no",
         "lf_band":       "F814W",
-        "lf_normalise":  "no",
+        "lf_normalize":  "no",
         "imagecut":        "no",
         "imagecut_pid":    "17776",
         "imagecut_size":   "auto",
@@ -694,8 +694,8 @@ class ParamFileReader:
     @property
     def save_format(self) -> str:
         fmt = self._params["save_format"].lower()
-        if fmt not in ("fits", "csv", "ecsv"):
-            raise ValueError(f"save_format must be fits / csv / ecsv. Got: {fmt!r}")
+        if fmt not in ("fits", "ecsv", "votable"):
+            raise ValueError(f"save_format must be fits / ecsv / votable. Got: {fmt!r}")
         return fmt
 
     @property
@@ -714,8 +714,8 @@ class ParamFileReader:
         return band
 
     @property
-    def lf_normalise(self) -> bool:
-        return self._params["lf_normalise"].lower() in ("yes", "true", "1")
+    def lf_normalize(self) -> bool:
+        return self._params["lf_normalize"].lower() in ("yes", "true", "1")
 
     @property
     def imagecut(self) -> bool:
@@ -799,7 +799,7 @@ def _auto_imagecut_size(results, radius_arcsec: float) -> int:
 
 
 def run_query(catalog, ra, dec, radius_arcsec, save, fmt, do_plot, do_lf, lf_band,
-              lf_normalise=False, do_imagecut=False, imagecut_pid=17776, imagecut_size=None,
+              lf_normalize=False, do_imagecut=False, imagecut_pid=17776, imagecut_size=None,
               output_dir="output"):
     """
     Execute a single cone search and handle output.
@@ -821,10 +821,18 @@ def run_query(catalog, ra, dec, radius_arcsec, save, fmt, do_plot, do_lf, lf_ban
         return
 
     if save:
+        # Map the user-facing format name to (file extension, astropy writer).
+        # votable must be written with an explicit format since astropy only
+        # auto-detects it from .vot/.xml, not from the chosen extension.
+        ext, write_fmt = {
+            "fits":    ("fits",    "fits"),
+            "ecsv":    ("ecsv",    "ascii.ecsv"),
+            "votable": ("vot",     "votable"),
+        }[fmt]
         out_name = os.path.join(output_dir,
                                 f"hamrr_ra{ra:.3f}_dec{dec:.3f}"
-                                f"_r{radius_arcsec:.2f}arcsec.{fmt}")
-        results.write(out_name, overwrite=True)
+                                f"_r{radius_arcsec:.2f}arcsec.{ext}")
+        results.write(out_name, format=write_fmt, overwrite=True)
         print(f"  Saved -> {out_name}")
 
     if do_plot:
@@ -832,7 +840,7 @@ def run_query(catalog, ra, dec, radius_arcsec, save, fmt, do_plot, do_lf, lf_ban
 
     if do_lf:
         catalog.plot_lf(results, ra, dec, radius_arcsec, band=lf_band,
-                        normalise=lf_normalise, output_dir=output_dir)
+                        normalize=lf_normalize, output_dir=output_dir)
 
     if do_imagecut:
         if imagecut_size is None:
@@ -896,7 +904,7 @@ def main():
 
         run_query(catalog, ra, dec, radius_arcsec,
                   save=p.save_results, fmt=p.save_format, do_plot=p.plot_cmd,
-                  do_lf=p.plot_lf, lf_band=p.lf_band, lf_normalise=p.lf_normalise,
+                  do_lf=p.plot_lf, lf_band=p.lf_band, lf_normalize=p.lf_normalize,
                   do_imagecut=p.imagecut, imagecut_pid=p.imagecut_pid,
                   imagecut_size=p.imagecut_size, output_dir=p.output_dir)
 
@@ -951,18 +959,18 @@ def main():
             save = input("  Save results to a file? (y/n): ").strip().lower() == "y"
             fmt  = "fits"
             if save:
-                fmt_input = input("  Format — fits / csv / ecsv [default: fits]: ").strip().lower()
-                fmt = fmt_input if fmt_input in ("fits", "csv", "ecsv") else "fits"
+                fmt_input = input("  Format — fits / ecsv / votable [default: fits]: ").strip().lower()
+                fmt = fmt_input if fmt_input in ("fits", "ecsv", "votable") else "fits"
 
-            do_plot = input("  Plot colour-magnitude diagram? (y/n): ").strip().lower() == "y"
+            do_plot = input("  Plot color-magnitude diagram? (y/n): ").strip().lower() == "y"
 
             do_lf        = input("  Plot luminosity function? (y/n): ").strip().lower() == "y"
             lf_band      = "F814W"
-            lf_normalise = False
+            lf_normalize = False
             if do_lf:
                 band_input = input("  Band for LF — F814W / F606W [default: F814W]: ").strip().upper()
                 lf_band = band_input if band_input in ("F814W", "F606W") else "F814W"
-                lf_normalise = input("  Normalise LF by sky area? (y/n): ").strip().lower() == "y"
+                lf_normalize = input("  normalize LF by sky area? (y/n): ").strip().lower() == "y"
 
             do_imagecut  = input("  Download HST image cutout from MAST? (y/n): ").strip().lower() == "y"
             imagecut_pid  = 17776
@@ -987,7 +995,7 @@ def main():
 
             run_query(catalog, ra, dec, radius_arcsec,
                       save=save, fmt=fmt, do_plot=do_plot,
-                      do_lf=do_lf, lf_band=lf_band, lf_normalise=lf_normalise,
+                      do_lf=do_lf, lf_band=lf_band, lf_normalize=lf_normalize,
                       do_imagecut=do_imagecut, imagecut_pid=imagecut_pid,
                       imagecut_size=imagecut_size, output_dir=output_dir)
 

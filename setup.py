@@ -36,12 +36,31 @@ from setuptools.command.develop import develop
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 THOR_DIR = PROJECT_ROOT / "src" / "thor"
+HAMRR_DIR = PROJECT_ROOT / "src" / "hamrr"
 DATA_DIR = PROJECT_ROOT / "data"
+EXAMPLE_THOR_DIR = PROJECT_ROOT / "example" / "thor_HD138"
+EXAMPLE_HAMRR_DIR = PROJECT_ROOT / "example" / "hamrr"
 
 # Fortran sources -> output executable name (no extension).
 FORTRAN_TARGETS = [
     ("hst1pass.F", "hst1pass"),
     ("thor_go.F", "thor_go"),
+]
+
+# Files to copy from src/thor/ -> example/thor_HD138/ after compilation.
+THOR_EXAMPLE_FILES = [
+    "hst1pass",
+    "thor_go",
+    "reduce_acs.src",
+    "reduce_wfc3.src",
+    "collate_thor.src",
+]
+
+# Files to copy from src/hamrr/ -> example/hamrr/.
+HAMRR_EXAMPLE_FILES = [
+    "hamrr.py",
+    "image_cut.py",
+    "params.in",
 ]
 
 # Fortran compilers to look for, in order of preference, when falling back to
@@ -83,7 +102,7 @@ def _find_fortran_compiler():
 
 def compile_fortran():
     """Compile the Fortran sources into executables (idempotent)."""
-    _banner("THOR setup [1/2]: compiling Fortran sources in src/thor/")
+    _banner("THOR setup [1/3]: compiling Fortran sources in src/thor/")
 
     if not THOR_DIR.is_dir():
         print(f"  WARNING: {THOR_DIR} not found; skipping Fortran build.")
@@ -126,6 +145,31 @@ def compile_fortran():
             print(f"  WARNING: failed to compile {source} (exit {exc.returncode}).")
 
 
+def copy_example_files():
+    """Copy runtime files into the example directories (idempotent)."""
+    _banner("THOR setup [2/3]: copying files into example/")
+
+    copies = [
+        (THOR_DIR, EXAMPLE_THOR_DIR, THOR_EXAMPLE_FILES),
+        (HAMRR_DIR, EXAMPLE_HAMRR_DIR, HAMRR_EXAMPLE_FILES),
+    ]
+
+    for src_dir, dst_dir, files in copies:
+        if not src_dir.is_dir():
+            print(f"  WARNING: {src_dir} not found; skipping.")
+            continue
+        dst_dir.mkdir(parents=True, exist_ok=True)
+        for name in files:
+            src = src_dir / name
+            dst = dst_dir / name
+            if not src.exists():
+                print(f"  WARNING: {src} not found; skipping.")
+                continue
+            shutil.copy2(src, dst)
+            print(f"  Copied {src.relative_to(PROJECT_ROOT)} -> "
+                  f"{dst.relative_to(PROJECT_ROOT)}")
+
+
 def _extract_and_cleanup(archive):
     """Unzip ``archive`` into data/, then delete the archive.
 
@@ -150,7 +194,7 @@ def _extract_and_cleanup(archive):
 
 def download_data():
     """Download the large data archives from Google Drive (idempotent)."""
-    _banner("THOR setup [2/2]: downloading data archives to data/ "
+    _banner("THOR setup [3/3]: downloading data archives to data/ "
             "(~1 GB each — this may take a while)")
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -217,6 +261,7 @@ def run_thor_setup():
         return
 
     compile_fortran()
+    copy_example_files()
     download_data()
     _banner("THOR setup complete.")
 

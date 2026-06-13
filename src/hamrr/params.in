@@ -7,7 +7,7 @@
 #     python hamr.py
 #
 # The script will detect this file automatically and run in
-# parameter-file mode instead of asking for input interactively.
+# parameter-file mode instead of asking for CLI input interactively.
 #
 # Lines beginning with # are comments and are ignored.
 # All keys are case-insensitive.
@@ -15,7 +15,7 @@
 
 # --- Catalog -------------------------------------------------
 # Path to the .fits or .zip catalog file.
-# Can be a relative path (from wherever you run the script)
+# Can be a relative path
 # or an absolute path.
 
 catalog_path = /Users/skterry/work/Roman_HST_Precursor_Survey/Data/DR1_and_Figures/thor.fits.gz
@@ -39,23 +39,23 @@ radius_arcsec = 60
 
 save_results  = yes
 
-# File format for the saved table:  fits  /  csv  /  ecsv
+# File format for the saved table:  fits  /  ecsv  /  votable
 
-save_format   = csv
+save_format   = fits
 
-# Generate and save a colour-magnitude diagram (CMD)?  yes / no
+# Save a color-magnitude diagram (CMD)?  yes / no
 
 plot_cmd      = yes
 
-#Generate and save a luminosity function (LF)? yes / no
-#Passband for LF? F814W / F606W
+# Save a luminosity function (LF)? yes / no
+# Passband for LF? F814W / F606W
 
 plot_lf  = yes
 lf_band  = F814W
 
-#If plotting luminosity function, want to normalize the LF? yes/no
+# If plotting luminosity function, want to normalize the LF? yes/no
 
-lf_normalise = yes
+lf_normalize = yes
 
 #Download an HST image cutout image from MAST centered on the target coordinates? yes / no
 # If downloading image from MAST, what pixel size for the cutout (pix)?
@@ -66,6 +66,6 @@ imagecut = no
 
 #Output directory name?
 
-output_dir = output/
+#output_dir = output/
 
 
