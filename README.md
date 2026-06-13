@@ -16,12 +16,25 @@ cd THOR
 pip install -e .
 ```
 
+The pipeline is fully self-contained: every file THOR/HAMRR needs to run — the
+PSF models, the geometric-distortion correction (GDC) reference files, the test
+images, and the survey catalog — either already exists in the repo or is
+downloaded automatically during `pip install -e .`. There are no additional
+manual download steps.
+
 This install command performs the full setup:
 
 1. **Compiles the Fortran sources** in `src/thor/` (`hst1pass.F`, `thor_go.F`).
    Most Fortran compilers are supported (gfortran, ifort/ifx, flang, ...); however 
    you can force a specific one with `make FC=<compiler>` in `src/thor/`, or by setting `FC` before installing.
-2. **Downloads two large data files (~1 GB each)** into `data/`. These are:
+2. **Downloads the reference files** that `hst1pass`/`thor_go` use for PSF
+   fitting and distortion correction. These are the standard STScI library
+   products for WFC3/UVIS and ACS/WFC in F606W and F814W:
+
+   a. **PSF models** (`STDPSF_*.fits`) into `src/thor/PSFs/`.
+
+   b. **Geometric-distortion correction files** (`STDGDC_*.fits`) into `src/thor/GDCs/`.
+3. **Downloads two large data files (~1 GB each)** into `data/`. These are:
    
    a. A sample of images (from field HD_138) to test the THOR data reduction. `data/field_HD138/`
    

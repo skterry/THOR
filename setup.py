@@ -9,10 +9,13 @@ setup steps, in addition to the normal (no-op) Python install:
      (gfortran, ifort/ifx, flang, ...). This is delegated to the Makefile in
      that directory, which auto-detects the compiler.
 
-  2. Download the two large (~1 GB each) data archives from Google Drive into
+  2. Download the standard geometric-distortion correction (GDC) reference
+     files from STScI directly into ``src/thor/GDCs/``.
+
+  3. Download the two large (~1 GB each) data archives from Google Drive into
      ``data/``, showing a progress bar for each.
 
-Both steps are idempotent: already-built executables and already-downloaded
+All steps are idempotent: already-built executables and already-downloaded
 files are left alone, so re-running the install is cheap.
 
 These steps run from the ``build_py`` command (used by both regular and
@@ -23,6 +26,7 @@ editable installs under modern pip/setuptools) and from the ``develop`` command
 import os
 import shutil
 import subprocess
+import urllib.request
 import zipfile
 from pathlib import Path
 
@@ -37,6 +41,7 @@ from setuptools.command.develop import develop
 PROJECT_ROOT = Path(__file__).resolve().parent
 THOR_DIR = PROJECT_ROOT / "src" / "thor"
 HAMRR_DIR = PROJECT_ROOT / "src" / "hamrr"
+GDC_DIR = THOR_DIR / "GDCs"
 DATA_DIR = PROJECT_ROOT / "data"
 EXAMPLE_THOR_DIR = PROJECT_ROOT / "example" / "thor_HD138"
 EXAMPLE_HAMRR_DIR = PROJECT_ROOT / "example" / "hamrr"
@@ -67,6 +72,17 @@ HAMRR_EXAMPLE_FILES = [
 # direct compilation (i.e. when `make` is unavailable). The Makefile uses the
 # same list.
 FORTRAN_COMPILERS = ["gfortran", "ifx", "ifort", "flang-new", "flang", "g77", "f77"]
+
+# Standard geometric-distortion correction (GDC) reference files. These are
+# direct download links (plain HTTP, not Google Drive), fetched into
+# src/thor/GDCs/. The destination filename is taken from the URL's basename.
+GDC_BASE_URL = "https://www.stsci.edu/~jayander/HST1PASS/LIB/GDCs/STDGDCs"
+GDC_URLS = [
+    f"{GDC_BASE_URL}/WFC3UV/STDGDC_WFC3UV_F606W.fits",
+    f"{GDC_BASE_URL}/WFC3UV/STDGDC_WFC3UV_F814W.fits",
+    f"{GDC_BASE_URL}/ACSWFC/STDGDC_OFFICIAL_JFRAME_ACSWFC_F606W.fits",
+    f"{GDC_BASE_URL}/ACSWFC/STDGDC_OFFICIAL_JFRAME_ACSWFC_F814W.fits",
+]
 
 # (Google Drive file id, destination filename under data/, extracted path)
 # When the third element is non-None, the downloaded archive is extracted into
@@ -102,7 +118,7 @@ def _find_fortran_compiler():
 
 def compile_fortran():
     """Compile the Fortran sources into executables (idempotent)."""
-    _banner("THOR setup [1/3]: compiling Fortran sources in src/thor/")
+    _banner("THOR setup [1/4]: compiling Fortran sources in src/thor/")
 
     if not THOR_DIR.is_dir():
         print(f"  WARNING: {THOR_DIR} not found; skipping Fortran build.")
@@ -147,7 +163,7 @@ def compile_fortran():
 
 def copy_example_files():
     """Copy runtime files into the example directories (idempotent)."""
-    _banner("THOR setup [2/3]: copying files into example/")
+    _banner("THOR setup [2/4]: copying files into example/")
 
     copies = [
         (THOR_DIR, EXAMPLE_THOR_DIR, THOR_EXAMPLE_FILES),
@@ -192,9 +208,55 @@ def _extract_and_cleanup(archive):
         print(f"  WARNING: extracted {archive.name} but could not remove it: {exc}")
 
 
+def _progress_hook(filename):
+    """Return a urlretrieve reporthook that prints download progress."""
+    def hook(block_num, block_size, total_size):
+        if total_size <= 0:
+            return
+        got = min(block_num * block_size, total_size)
+        pct = 100.0 * got / total_size
+        # \r keeps it on one line for ttys; harmless (extra newlines) under pip.
+        print(f"\r  {filename}: {pct:5.1f}% "
+              f"({got / 1e6:.0f}/{total_size / 1e6:.0f} MB)", end="", flush=True)
+        if got >= total_size:
+            print()
+    return hook
+
+
+def download_gdcs():
+    """Download the GDC reference files from STScI into src/thor/GDCs/ (idempotent)."""
+    _banner("THOR setup [3/4]: downloading GDC reference files to src/thor/GDCs/ "
+            "(~300 MB each)")
+
+    GDC_DIR.mkdir(parents=True, exist_ok=True)
+
+    for url in GDC_URLS:
+        filename = url.rsplit("/", 1)[-1]
+        dest = GDC_DIR / filename
+
+        if dest.exists() and dest.stat().st_size > 0:
+            print(f"  {filename} already present "
+                  f"({dest.stat().st_size / 1e6:.1f} MB); skipping.")
+            continue
+
+        print(f"  Downloading {filename} ...", flush=True)
+        tmp = dest.with_suffix(dest.suffix + ".part")
+        try:
+            urllib.request.urlretrieve(url, tmp, reporthook=_progress_hook(filename))
+        except Exception as exc:  # noqa: BLE001 - keep install resilient
+            print(f"  WARNING: failed to download {filename}: {exc}")
+            tmp.unlink(missing_ok=True)
+            continue
+        # Only publish the final file once the download finishes cleanly, so an
+        # interrupted run never leaves a truncated .fits in place.
+        tmp.replace(dest)
+        print(f"  Downloaded {filename} ({dest.stat().st_size / 1e6:.1f} MB).",
+              flush=True)
+
+
 def download_data():
     """Download the large data archives from Google Drive (idempotent)."""
-    _banner("THOR setup [3/3]: downloading data archives to data/ "
+    _banner("THOR setup [4/4]: downloading data archives to data/ "
             "(~1 GB each — this may take a while)")
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -262,6 +324,7 @@ def run_thor_setup():
 
     compile_fortran()
     copy_example_files()
+    download_gdcs()
     download_data()
     _banner("THOR setup complete.")
 
