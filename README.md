@@ -31,9 +31,9 @@ This install command performs the full setup:
    fitting and distortion correction. These are the standard STScI library
    products for WFC3/UVIS and ACS/WFC in F606W and F814W:
 
-   a. **PSF models** (`STDPSF_*.fits`) into `src/thor/PSFs/`.
+   a. **PSF models** (`STDPSF_*.fits`) live in `src/thor/PSFs/`.
 
-   b. **Geometric-distortion correction files** (`STDGDC_*.fits`) into `src/thor/GDCs/`.
+   b. **Geometric-distortion correction files** (`STDGDC_*.fits`) are downloaded to `src/thor/GDCs/`.
 3. **Downloads two large data files (~1 GB each)** into `data/`. These are:
    
    a. A sample of images (from field HD_138) to test the THOR data reduction. `data/field_HD138/`
