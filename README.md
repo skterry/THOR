@@ -59,7 +59,7 @@ HAMRR can be run in two modes:
 pre-defined arguments written in the param file.
 
 Required arguments for `hamrr.py`:
-- `catalog_path`: Path to THOR-generated catalog (e.g. `../../data/hlsp_thor_hst_wfc3_acs_bulge_early-release_v1.0_cat.fits.zip`)
+- `catalog_path`: Path to THOR-generated catalog (e.g. `/data/hlsp_thor_hst_wfc3_acs_bulge_early-release_v1.0_cat.fits.zip`)
 - `ra`: Right Ascension sky coordinate (`Decimal degrees, HMS/DMS, or Colon-separated`)
 - `dec`: Declination sky coordinate (`Decimal degrees, HMS/DMS, or Colon-separated`)
 - `radius_arcsec`: Search radius (`arcseconds`)
@@ -71,7 +71,7 @@ Optional arguments for `hamrr.py`:
 - `plot_lf`: Save a luminosity function (LF)? (`yes/no`) default: no
 - `lf_band`: Passband for LF (`F606W/F814W`) default: F814W
 - `lf_normalise`: Normalize the LF by sky area? (`yes/no`) default: none
-- `image_cut`: Save cutout images around target? (`yes/no`) default: no
+- `image_cut`: Save cutout images centered on queried `ra, dec`? (`yes/no`) default: no
 - `imagecut_size`: Pixel size for the cutout (pix). default: pixel size cutout will match cone search size from `radius_arcsec` argument above
 - `output_dir`: Output directory name. default: `output/`
 
