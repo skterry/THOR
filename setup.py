@@ -44,6 +44,8 @@ HAMRR_DIR = PROJECT_ROOT / "src" / "hamrr"
 GDC_DIR = THOR_DIR / "GDCs"
 DATA_DIR = PROJECT_ROOT / "data"
 EXAMPLE_THOR_DIR = PROJECT_ROOT / "example" / "thor_HD138"
+EXAMPLE_ACS_DIR = EXAMPLE_THOR_DIR / "ACS.XYM"
+EXAMPLE_WFC3_DIR = EXAMPLE_THOR_DIR / "WFC3.XYM"
 EXAMPLE_HAMRR_DIR = PROJECT_ROOT / "example" / "hamrr"
 
 # Fortran sources -> output executable name (no extension).
@@ -52,13 +54,17 @@ FORTRAN_TARGETS = [
     ("thor_go.F", "thor_go"),
 ]
 
-# Files to copy from src/thor/ -> example/thor_HD138/ after compilation.
+# Files to copy from src/thor/ after compilation, as (filename, destination dir)
+# pairs. The compiled executables land in example/thor_HD138/, while the reduce
+# scripts go into per-detector sub-directories; collate_thor.src is needed in
+# both, so it is listed twice.
 THOR_EXAMPLE_FILES = [
-    "hst1pass",
-    "thor_go",
-    "reduce_acs.src",
-    "reduce_wfc3.src",
-    "collate_thor.src",
+    ("hst1pass", EXAMPLE_THOR_DIR),
+    ("thor_go", EXAMPLE_THOR_DIR),
+    ("reduce_acs.src", EXAMPLE_ACS_DIR),
+    ("reduce_wfc3.src", EXAMPLE_WFC3_DIR),
+    ("collate_thor.src", EXAMPLE_ACS_DIR),
+    ("collate_thor.src", EXAMPLE_WFC3_DIR),
 ]
 
 # Files to copy from src/hamrr/ -> example/hamrr/.
@@ -165,25 +171,25 @@ def copy_example_files():
     """Copy runtime files into the example directories (idempotent)."""
     _banner("THOR setup [2/4]: copying files into example/")
 
-    copies = [
-        (THOR_DIR, EXAMPLE_THOR_DIR, THOR_EXAMPLE_FILES),
-        (HAMRR_DIR, EXAMPLE_HAMRR_DIR, HAMRR_EXAMPLE_FILES),
-    ]
+    # Flatten into a single list of (source dir, filename, destination dir)
+    # copies. THOR files carry their own per-file destination; HAMRR files all
+    # share one destination directory.
+    copies = [(THOR_DIR, name, dst_dir) for name, dst_dir in THOR_EXAMPLE_FILES]
+    copies += [(HAMRR_DIR, name, EXAMPLE_HAMRR_DIR) for name in HAMRR_EXAMPLE_FILES]
 
-    for src_dir, dst_dir, files in copies:
+    for src_dir, name, dst_dir in copies:
         if not src_dir.is_dir():
             print(f"  WARNING: {src_dir} not found; skipping.")
             continue
+        src = src_dir / name
+        if not src.exists():
+            print(f"  WARNING: {src} not found; skipping.")
+            continue
         dst_dir.mkdir(parents=True, exist_ok=True)
-        for name in files:
-            src = src_dir / name
-            dst = dst_dir / name
-            if not src.exists():
-                print(f"  WARNING: {src} not found; skipping.")
-                continue
-            shutil.copy2(src, dst)
-            print(f"  Copied {src.relative_to(PROJECT_ROOT)} -> "
-                  f"{dst.relative_to(PROJECT_ROOT)}")
+        dst = dst_dir / name
+        shutil.copy2(src, dst)
+        print(f"  Copied {src.relative_to(PROJECT_ROOT)} -> "
+              f"{dst.relative_to(PROJECT_ROOT)}")
 
 
 def _extract_and_cleanup(archive):
