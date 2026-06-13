@@ -1,4 +1,4 @@
-hst1pass HMIN=5 FMIN=25 PSF=../../src/thor/PSFs/STDPSF_WFC3UV_F606W.fits GDC=../../src/thor/GDCs/STDGDC_WFC3UV_F606W.fits SHOW_REF- SHOW_SUB+ OUT=xympquvwrd REG=uv PERT=1 ../../data/field_HD138/WFC3/DATA/F606W/*_flc.fits
+hst1pass HMIN=5 FMIN=25 PSF=../../../src/thor/PSFs/STDPSF_WFC3UV_F606W.fits GDC=../../../src/thor/GDCs/STDGDC_WFC3UV_F606W.fits SHOW_REF- SHOW_SUB+ OUT=xympquvwrd REG=uv PERT=1 ../../../data/field_HD138/WFC3/DATA/F606W/*_flc.fits
 for f in *.xympquvwrd; do mv "$f" "${f%.xympquvwrd}.F606W_xympquvwrd"; done
-hst1pass HMIN=5 FMIN=25 PSF=../../src/thor/PSFs/STDPSF_WFC3UV_F814W.fits GDC=../../src/thor/GDCs/STDGDC_WFC3UV_F814W.fits SHOW_REF+ SHOW_SUB+ OUT=xympquvwrd REG=uv PERT=1 ../../data/field_HD138/WFC3/DATA/F814W/*_flc.fits
+hst1pass HMIN=5 FMIN=25 PSF=../../../src/thor/PSFs/STDPSF_WFC3UV_F814W.fits GDC=../../../src/thor/GDCs/STDGDC_WFC3UV_F814W.fits SHOW_REF+ SHOW_SUB+ OUT=xympquvwrd REG=uv PERT=1 ../../../data/field_HD138/WFC3/DATA/F814W/*_flc.fits
 for f in *.xympquvwrd; do mv "$f" "${f%.xympquvwrd}.F814W_xympquvwrd"; done
