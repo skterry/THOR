@@ -16,9 +16,15 @@
 # built-in Make variable whose default value is "f77", so `origin FC` is
 # "default" until someone overrides it on the command line or environment.
 ifeq ($(origin FC),default)
-  FC := $(shell for c in gfortran ifx ifort flang-new flang g77 f77; do \
-                  command -v $$c >/dev/null 2>&1 && { echo $$c; break; }; \
-                done)
+  FC := $(shell \
+    for c in gfortran ifx ifort flang-new flang g77 f77; do \
+      command -v "$$c" >/dev/null 2>&1 && { echo "$$c"; exit 0; }; \
+    done; \
+    IFS=:; for dir in $$PATH; do \
+      for exe in "$$dir"/gfortran-mp-[0-9]* "$$dir"/gfortran-[0-9]*; do \
+        [ -x "$$exe" ] && { echo "$$exe"; exit 0; }; \
+      done; \
+    done)
 endif
 
 # Optional flags. Left empty by default so we stay compiler-agnostic; users
