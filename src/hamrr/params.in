@@ -27,12 +27,12 @@ catalog_path = ../../data/thor_hst_wfc3_acs_bulge_v0.2_cat.fits.zip
 #   HMS / DMS        :  17h43m37.2s   /  -29d00m25s
 #   Colon-separated  :  17:43:37.2    /  -29:00:25
 
-ra            = 17:51:01.16
-dec           = -29:03:55.9
+ra            = 17:51:27.91
+dec           = -30:17:19.3
 
 # Search radius in arcseconds (must be > 0).
 
-radius_arcsec = 60
+radius_arcsec = 30
 
 # --- Output options ------------------------------------------
 # Save the result table to a file?  yes / no
@@ -61,7 +61,7 @@ lf_normalize = yes
 # If downloading image from MAST, what pixel size for the cutout (pix)?
 # By default, pixel size cutout will match cone search size from radius_arcsec argument above.
 
-imagecut = no
+imagecut = yes
 #imagecut_size = 250
 
 #Output directory name?
