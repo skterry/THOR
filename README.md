@@ -24,7 +24,7 @@ manual download steps.
 
 This install command performs the full setup:
 
-1. **Compiles the Fortran sources** in `src/thor/` (`hst1pass.F`, `thor_go.F`).
+1. **Compiles the Fortran sources** in `src/thor/` (`hst1pass.F`, `thor_go_gaia.F`, and `thor_go_nogaia.F`).
    Most Fortran compilers are supported (gfortran, ifort/ifx, flang, ...); however 
    you can force a specific one with `make FC=<compiler>` in `src/thor/`, or by setting `FC` before installing.
 2. **Downloads the reference files** that `hst1pass`/`thor_go` use for PSF
@@ -109,7 +109,7 @@ please cite the following work:
     @article{terry2026thor,
             title={THOR and HAMRR},
             author={Terry, Sean K and Anderson, Jay},
-            journal={arXiv preprint arXiv:}
+            journal={arXiv preprint arXiv:2606.18330}
             year={2026},
             }
 
