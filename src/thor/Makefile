@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# Makefile for the THOR Fortran routines (hst1pass, thor_go)
+# Makefile for the THOR Fortran routines (hst1pass, thor_go_gaia, thor_go_nogaia)
 #
 # The Fortran compiler is auto-detected so this works on any machine that has
 # a reasonably modern Fortran compiler installed (gfortran, ifort/ifx, flang,
@@ -31,7 +31,7 @@ endif
 # may pass their own, e.g.  make FFLAGS="-O2".
 FFLAGS ?=
 
-EXES := hst1pass thor_go
+EXES := hst1pass thor_go_gaia thor_go_nogaia
 
 .PHONY: all clean check
 .DEFAULT_GOAL := all
@@ -50,7 +50,9 @@ check:
 hst1pass: hst1pass.F
 	$(FC) $(FFLAGS) $< -o $@
 
-thor_go: thor_go.F
+# Both thor_go variants build the same way; only the source differs
+# (thor_go_gaia.F uses a local Gaia_*.dB file, thor_go_nogaia.F does not).
+thor_go_%: thor_go_%.F
 	$(FC) $(FFLAGS) $< -o $@
 
 clean:

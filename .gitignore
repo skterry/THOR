@@ -51,7 +51,8 @@ dist/
 
 # THOR build artifacts (compiled by `pip install -e .`)
 /src/thor/hst1pass
-/src/thor/thor_go
+/src/thor/thor_go_gaia
+/src/thor/thor_go_nogaia
 
 # THOR data archives downloaded by `pip install -e .` (~1 GB each).
 # The smaller early-release catalog zip is committed to the repo, so only the

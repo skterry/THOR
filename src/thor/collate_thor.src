@@ -1,2 +1,3 @@
-# Run thor_go on the *_xympquvwrd files, F606W first then F814W
-../thor_go *.F606W_xympquvwrd *.F814W_xympquvwrd -datadir ../../../data/field_HD138/ACS/DATA/
+# Run thor_go (no-Gaia variant) on the *_xympquvwrd files, F606W first then F814W
+det=$(basename "$PWD" | cut -d. -f1)   # ACS or WFC3, from the current directory
+../thor_go_nogaia *.F606W_xympquvwrd *.F814W_xympquvwrd -datadir ../../../data/field_HD138/$det/DATA/ -gdcdir ../../../src/thor/GDCs/

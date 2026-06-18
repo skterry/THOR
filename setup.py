@@ -4,8 +4,9 @@ THOR — build/install hooks.
 Running ``pip install -e .`` from the top-level directory triggers two custom
 setup steps, in addition to the normal (no-op) Python install:
 
-  1. Compile the Fortran sources in ``src/thor/`` (hst1pass.F, thor_go.F) into
-     bare executables, using whatever Fortran compiler the user has installed
+  1. Compile the Fortran sources in ``src/thor/`` (hst1pass.F, thor_go_gaia.F,
+     thor_go_nogaia.F) into bare executables, using whatever Fortran compiler
+     the user has installed
      (gfortran, ifort/ifx, flang, ...). This is delegated to the Makefile in
      that directory, which auto-detects the compiler.
 
@@ -48,10 +49,14 @@ EXAMPLE_ACS_DIR = EXAMPLE_THOR_DIR / "ACS.XYM"
 EXAMPLE_WFC3_DIR = EXAMPLE_THOR_DIR / "WFC3.XYM"
 EXAMPLE_HAMRR_DIR = PROJECT_ROOT / "example" / "hamrr"
 
-# Fortran sources -> output executable name (no extension).
+# Fortran sources -> output executable name (no extension). There are two
+# thor_go variants: thor_go_gaia.F uses a local Gaia_*.dB file, while
+# thor_go_nogaia.F does not use the Gaia database at all. Both are compiled,
+# but only thor_go_nogaia is copied into example/ (see THOR_EXAMPLE_FILES).
 FORTRAN_TARGETS = [
     ("hst1pass.F", "hst1pass"),
-    ("thor_go.F", "thor_go"),
+    ("thor_go_gaia.F", "thor_go_gaia"),
+    ("thor_go_nogaia.F", "thor_go_nogaia"),
 ]
 
 # Files to copy from src/thor/ after compilation, as (filename, destination dir)
@@ -60,7 +65,7 @@ FORTRAN_TARGETS = [
 # both, so it is listed twice.
 THOR_EXAMPLE_FILES = [
     ("hst1pass", EXAMPLE_THOR_DIR),
-    ("thor_go", EXAMPLE_THOR_DIR),
+    ("thor_go_nogaia", EXAMPLE_THOR_DIR),
     ("reduce_acs.src", EXAMPLE_ACS_DIR),
     ("reduce_wfc3.src", EXAMPLE_WFC3_DIR),
     ("collate_thor.src", EXAMPLE_ACS_DIR),

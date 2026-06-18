@@ -46,8 +46,8 @@ c
 c---------------------------------------------------------------------
  
 #define _GMAX_  999 999
-#define _DBLOC_  '/Users/skterry/work/Gaia/GAIA_DR3.dBJ'
-#define _DBLOC2_ '/Users/skterry/work/Gaia/GAIA_DR3_RUWE_ID.dBJ'
+#define _DBLOC_  '/path/to/GAIA_DR3.dBJ'
+#define _DBLOC2_ '/path/to/GAIA_DR3_RUWE_ID.dBJ'
  
 c---------------------------------------------------------------------
 c
@@ -17460,6 +17460,7 @@ c
       character*200 STRING_ARG(99)
       character*200 FILENAME
       character*200 DATADIR
+      character*200 GDCDIR
       integer NARG_V1, NARG_V2
       integer NARG_I1, NARG_I2
  
@@ -17616,6 +17617,32 @@ c
       L = len_trim(DATADIR)
       if (DATADIR(L:L).ne.'/') DATADIR = DATADIR(1:L) // '/'
       write(*,'(''        DATA DIRECTORY: '',a)') trim(DATADIR)
+
+c
+c     determine the directory that holds the geometric-distortion
+c     correction (GDC) reference files.  precedence (low to high):
+c       1. the relative location populated by `pip install` / setup.py,
+c       2. the THOR_GDC_DIR environment variable, if set,
+c       3. a -gdcdir <path> flag on the command line.
+c     only the per-filter basename is appended later, so no machine-
+c     specific path is ever baked into the executable.
+c
+      GDCDIR = '../../../src/thor/GDCs/'
+      call getenv('THOR_GDC_DIR',STRING200)
+      if (len_trim(STRING200).gt.0) GDCDIR = STRING200
+      do NARG = 1, NARGs
+         call getarg(NARG,STRING200)
+         if (STRING200(1:7).eq.'-gdcdir') then
+             if (NARG.eq.NARGs) then
+                 print*,'-gdcdir flag given without a path.'
+                 stop
+                 endif
+             call getarg(NARG+1,GDCDIR)
+             endif
+         enddo!NARG
+      L = len_trim(GDCDIR)
+      if (GDCDIR(L:L).ne.'/') GDCDIR = GDCDIR(1:L) // '/'
+      write(*,'(''        GDC  DIRECTORY: '',a)') trim(GDCDIR)
 
       write(*,*)
       write(*,*)
@@ -18523,19 +18550,17 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
             SCL_N(NIM) = EXPT_N(N)/340.00
             FILE_STDGDC = 'NONE'
             if (V1I2.eq.1.and.INST.eq.1)
-     .          FILE_STDGDC = '/Users/skterry/code/fortran/hst/'
-     .                     // 'GDCs/'
+     .          FILE_STDGDC = trim(GDCDIR)
      .                     // 'STDGDC_OFFICIAL_JFRAME_ACSWFC_F606W.fits'
             if (V1I2.eq.2.and.INST.eq.1)
-     .          FILE_STDGDC = '/Users/skterry/code/fortran/hst/'
-     .                     // 'GDCs/'
+     .          FILE_STDGDC = trim(GDCDIR)
      .                     // 'STDGDC_OFFICIAL_JFRAME_ACSWFC_F814W.fits'
             if (V1I2.eq.1.and.INST.eq.2)
-     .          FILE_STDGDC = '/Users/skterry/code/fortran/hst/'
-     .                     // 'GDCs/STDGDC_WFC3UV_F606W.fits'
+     .          FILE_STDGDC = trim(GDCDIR)
+     .                     // 'STDGDC_WFC3UV_F606W.fits'
             if (V1I2.eq.2.and.INST.eq.2)
-     .          FILE_STDGDC = '/Users/skterry/code/fortran/hst/'
-     .                     // 'GDCs/STDGDC_WFC3UV_F814W.fits'
+     .          FILE_STDGDC = trim(GDCDIR)
+     .                     // 'STDGDC_WFC3UV_F814W.fits'
             write(*,117) V1I2,NIM,N,INST,INSTu,
      .                   int(EXPT_N(N)+0.5),SCL_N(NIM),
      .                   pixi(2048,1024,NIM),
