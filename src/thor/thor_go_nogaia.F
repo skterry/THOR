@@ -76,7 +76,6 @@ c              "auxiliary" info for stars in cone
 c              searches when RV was printed
 c 2018.06.12 - for the code mode you now have to enter
 c              RA_CEN= DE_CEN= and RAD=
-c 2018.06.12 - (historical note from Gaia tools; not used in dex_no_gaia)
 c 2018.06.12 - include a mode where we identify stars by ID number
 c              this requires a second data base, BASE.GDR3_IDMAP,
 c              which has the stars in order, along with the record
@@ -17377,7 +17376,7 @@ c
  
  
  
-      program dex_no_gaia
+      program no_gaia
       implicit none
  
  
@@ -17721,7 +17720,7 @@ c
       write(*,'(''        EXPOSURE.                     '')')
       write(*,*)
  
-      open(21,file='dex_no_gaia_STEP02_A.nim_info',status='unknown')
+      open(21,file='no_gaia_STEP02_A.nim_info',status='unknown')
       do N = 1, 4
          if (N.eq.1) FILENAME = STRING_ARG(NARG_V1)
          if (N.eq.2) FILENAME = STRING_ARG(NARG_V2)
@@ -17863,7 +17862,7 @@ c
       do L = 1, Ls_n(NREF)
          if (m_ln(L,NREF).lt.-11) then
              Gs = Gs + 1
-             if (Gs.gt._GMAX_) stop 'dex_no_gaia: Gs.gt._GMAX_'
+             if (Gs.gt._GMAX_) stop 'no_gaia: Gs.gt._GMAX_'
              ra_g(Gs) = r_ln(L,NREF)
              de_g(Gs) = d_ln(L,NREF)
              id_g(Gs) = int(L, kind=8)
@@ -17900,7 +17899,7 @@ c
       write(*,*)
  
  
-      open(51,file='dex_no_gaia_STEP05_A.uvm_gaia',status='unknown')
+      open(51,file='no_gaia_STEP05_A.uvm_gaia',status='unknown')
       write(51,'(''#'')')
       write(51,'(''# RA_CEN: '',f15.8)') RA_CEN
       write(51,'(''# DE_CEN: '',f15.8)') DE_CEN
@@ -17933,7 +17932,7 @@ c        vv_g(G) = 5001 + dde*60*60/0.040                               !     mo
          enddo
       close(51)
  
-      open(52,file='dex_no_gaia_STEP05_B.uvrd_1p',status='unknown')
+      open(52,file='no_gaia_STEP05_B.uvrd_1p',status='unknown')
       write(52,'(''#'')')
       write(52,'(''# RA_CEN: '',f15.8)') RA_CEN
       write(52,'(''# DE_CEN: '',f15.8)') DE_CEN
@@ -17958,9 +17957,9 @@ c        vv_g(G) = 5001 + dde*60*60/0.040                               !     mo
       write(*,'(''STEP6:  MATCH EACH EXPOSURE TO INTERNAL REF'')')
       write(*,*)
  
-      open(61,file='dex_no_gaia_STEP06_A.mat_gaia_list',
+      open(61,file='no_gaia_STEP06_A.mat_gaia_list',
      .        status='unknown')
-      open(62,file='dex_no_gaia_STEP06_B.mat_gaia_info',
+      open(62,file='no_gaia_STEP06_B.mat_gaia_info',
      .        status='unknown')
       write(61,'(''#'')')
       write(61,'(''#  COL(01):  xgc  '')')
@@ -18250,7 +18249,7 @@ c
       write(*,'(''STEP8:  REFINE MASTER LIST '')')
       write(*,*)
  
-      open(81,file='dex_no_gaia_STEP08_A.xyvieeee',
+      open(81,file='no_gaia_STEP08_A.xyvieeee',
      .        status='unknown')
       do N = 1, 4
          Lu = 0
@@ -18434,7 +18433,7 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
          enddo
          enddo
  
-      open(91,file='dex_no_gaia_STEP09_A.gaia_linkup',
+      open(91,file='no_gaia_STEP09_A.gaia_linkup',
      .        status='unknown')
       write(91,391)
       write(91,291)
@@ -18689,8 +18688,8 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
      .                    5x,f8.2,5x,f8.2,1x,f8.2)
             enddo!i
             enddo!j
-         if (V1I2.eq.1) FILENAME = 'dex_no_gaia_STEP10A_F606W.fits'
-         if (V1I2.eq.2) FILENAME = 'dex_no_gaia_STEP10B_F814W.fits'
+         if (V1I2.eq.1) FILENAME = 'no_gaia_STEP10A_F606W.fits'
+         if (V1I2.eq.2) FILENAME = 'no_gaia_STEP10B_F814W.fits'
          call writfits_r4_WCSLTV(FILENAME,pixo,UDIM,VDIM,
      .                              CRPIX1,CRPIX2,CRVAL1,CRVAL2,
      .                              CD1_1, CD1_2, CD2_1, CD2_2,
@@ -18701,7 +18700,7 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
       deallocate(pixo)
  
  
-      open(71,file='dex_no_gaia_STEP10C_GAIA.reg',status='unknown')
+      open(71,file='no_gaia_STEP10C_GAIA.reg',status='unknown')
       write(71,'(''# Region file format: DS9 version 4.1'')')
       write(71,'(''global color=yellow dashlist=8 3 width=3'')')
       write(71,'(''fk5'')')
@@ -18723,7 +18722,7 @@ c 199    format(1x,i5.5,1x,4f9.3,1x,4f9.3,1x,4f8.3)
          enddo
       close(71)
  
-      open(72,file='dex_no_gaia_STEP10D_HST.reg',status='unknown')
+      open(72,file='no_gaia_STEP10D_HST.reg',status='unknown')
       write(72,'(''# Region file format: DS9 version 4.1'')')
       write(72,'(''global color=yellow width=1'')')
       write(72,'(''physical'')')
