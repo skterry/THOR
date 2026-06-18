@@ -57,7 +57,7 @@ Reducing the HST bulge survey data with THOR requires two steps:
    source collate_thor.src
    ```
 
-These scripts can be run from inside the directory `example/thor_HD138/` to learn the reduction process. If you have downloaded
+These scripts can be run from inside the directory `example/thor_HD138/*.XYM/` to learn the reduction process. If you have downloaded
 external images from the survey and wish to reduce them with THOR, you will need to modify all `*.src` scripts.
 
 ### Running HAMRR
