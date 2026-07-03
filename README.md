@@ -16,6 +16,8 @@ cd THOR
 pip install -e .
 ```
 
+$\color{red}{\text{IMPORTANT: running the pip install will download ~3.6 GB of data to your machine.}}$
+
 The pipeline is fully self-contained: every file THOR/HAMRR needs to run — the
 PSF models, the geometric-distortion correction (GDC) reference files, the test
 images, and the survey catalog — either already exists in the repo or is
@@ -109,8 +111,12 @@ please cite the following work:
     @article{terry2026thor,
             title={THOR and HAMRR},
             author={Terry, Sean K and Anderson, Jay},
-            journal={arXiv preprint arXiv:2606.18330}
+            journal={Research Notes of the AAS},
+            volume={10},
+            number={6},
+            pages={167},
             year={2026},
+            publisher={The American Astronomical Society}
             }
 
 
