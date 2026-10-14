@@ -102,7 +102,7 @@ GDC_URLS = [
 # download+extract idempotent, since the .zip itself is removed.
 DATA_FILES = [
     ("17peXwwP6HzZrwOqFuYp-16odfVQkTJof", "field_HD138.zip", "field_HD138"),
-    ("1va4EvurqpS6fqLOnslA4FS9iaaDAUtoF", "thor_hst_wfc3_acs_bulge_v0.3_cat.fits.zip", None),
+    ("1va4EvurqpS6fqLOnslA4FS9iaaDAUtoF", "thor_hst_wfc3_acs_bulge_v0.3_cat.fits.gz", None),
 ]
 
 # Run the custom steps at most once per interpreter process, even if more than
