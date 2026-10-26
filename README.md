@@ -40,7 +40,7 @@ This install command performs the full setup:
    
    a. A sample of images (from field HD_138) to test the THOR data reduction. `data/field_HD138/`
    
-   b. The full catalog of sources detected in the HST bulge survey. `data/thor_hst_wfc3_acs_bulge_v0.2_cat.fits.zip`
+   b. The full catalog of sources detected in the HST bulge survey. `data/thor_hst_wfc3_acs_bulge_v0.3_cat.fits.zip`
       note: this is a shared-risk catalog and has not been peer-reviewed or published (as of June 2026).
 
 ### Running THOR
@@ -105,7 +105,7 @@ please cite the following work:
             publisher={The American Astronomical Society}
             }
 
-If you use data from the full (shared-risk) catalog in `data/thor_hst_wfc3_acs_bulge_v0.2_cat.fits.zip`
+If you use data from the full (shared-risk) catalog in `data/thor_hst_wfc3_acs_bulge_v0.3_cat.fits.zip`
 please cite the following work:
 
     @article{terry2026thor,
